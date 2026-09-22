@@ -702,15 +702,26 @@ open class BaseNotificationBanner: UIView {
 
     internal func shouldAdjustForDynamicIsland() -> Bool {
         return NotificationBannerUtilities.hasDynamicIsland()
-            && UIApplication.shared.statusBarOrientation.isPortrait
+            && isInterfaceOrientationPortrait
             && (self.parentViewController?.navigationController?.isNavigationBarHidden ?? true)
     }
     
     internal func shouldAdjustForNotchFeaturedIphone() -> Bool {
         return NotificationBannerUtilities.isNotchFeaturedIPhone()
-            && UIApplication.shared.statusBarOrientation.isPortrait
+            && isInterfaceOrientationPortrait
             && (self.parentViewController?.navigationController?.isNavigationBarHidden ?? true)
     }
+
+    private var isInterfaceOrientationPortrait: Bool {
+        if #available(iOS 13.0, *) {
+            let window = parentViewController?.view.window ?? appWindow
+            return window?.windowScene?.interfaceOrientation.isPortrait ?? true
+        }
+
+        guard let window = parentViewController?.view.window ?? appWindow else { return true }
+        return window.bounds.height >= window.bounds.width
+    }
+
     /**
         Updates the scrolling marquee label duration
     */
@@ -745,4 +756,3 @@ open class BaseNotificationBanner: UIView {
         UIAccessibility.post(notification: .screenChanged, argument: self)
     }
 }
-
